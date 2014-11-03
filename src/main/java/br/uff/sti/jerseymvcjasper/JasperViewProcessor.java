@@ -7,15 +7,16 @@ package br.uff.sti.jerseymvcjasper;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.Reader;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import javax.inject.Inject;
 import javax.servlet.ServletContext;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
+import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperReport;
-import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.jersey.server.mvc.Viewable;
-import org.glassfish.jersey.server.mvc.spi.AbstractTemplateProcessor;
-import org.jvnet.hk2.annotations.Optional;
+import org.glassfish.jersey.server.mvc.spi.TemplateProcessor;
 
 /**
  * {@link org.glassfish.jersey.server.mvc.spi.TemplateProcessor Template processor}
@@ -23,50 +24,45 @@ import org.jvnet.hk2.annotations.Optional;
  *
  * @author Marcos Côrtes (marcoscortes at id.uff.br)
  */
-class JasperViewProcessor extends AbstractTemplateProcessor<JasperReport> {
-    
+class JasperViewProcessor implements TemplateProcessor<JasperReport> {
+
+    private final ConcurrentMap<String, JasperReport> cache;
     private final JasperFactory factory;
 
-       
-    public JasperViewProcessor(
-            final javax.ws.rs.core.Configuration config, 
-            final ServiceLocator serviceLocator,
-            @Optional final ServletContext servletContext) {
-        super(config, servletContext, "jasper", "jrxml");
+    public static String STR_EXT_JRXML = ".jrxml";
 
+    @Inject
+    public JasperViewProcessor(ServletContext servletContext) {
         this.factory = new JasperFactory(servletContext);
-//        this.factory = getTemplateObjectFactory(serviceLocator, Configuration.class, new Value<Configuration>() {
-//            @Override
-//            public Configuration get() {
-//                // Create different loaders.
-//                final List<TemplateLoader> loaders = Lists.newArrayList();
-//                if (servletContext != null) {
-//                    loaders.add(new WebappTemplateLoader(servletContext));
-//                }
-//                loaders.add(new ClassTemplateLoader(FreemarkerViewProcessor.class, "/"));
-//                try {
-//                    loaders.add(new FileTemplateLoader(new File("/")));
-//                } catch (IOException e) {
-//                    // NOOP
-//                }
-//
-//                // Create Factory.
-//                final Configuration configuration = new Configuration();
-//                configuration.setTemplateLoader(new MultiTemplateLoader(loaders.toArray(new TemplateLoader[loaders.size()])));
-//                return configuration;
-//            }
-//        });
+        this.cache = new ConcurrentHashMap();
     }
 
-    
+    /**
+     * Reimplement resolve method to replace Reader source to InputStream
+     * (Jasper use it).
+     *
+     * @param name
+     * @param mediaType
+     * @return
+     */
     @Override
-    protected JasperReport resolve(String string, Reader reader) throws Exception {
-        return factory.compile(reader);
+    public JasperReport resolve(String name, javax.ws.rs.core.MediaType mediaType) {
+       
+        if (!cache.containsKey(name)) {
+            try{
+                JasperReport jr = factory.getCompiledJasper(name);
+                cache.putIfAbsent(name, jr);
+                return jr;
+            }catch(JRException jre){
+                throw new IllegalStateException("Houve um erro ao compilar o JasperReport", jre);
+            }
+        }
+        
+        return cache.get(name);
     }
 
     @Override
-    public void writeTo(JasperReport t, Viewable vwbl, MediaType mt, MultivaluedMap<String, Object> mm, OutputStream out) throws IOException {
+    public void writeTo(JasperReport jasper, Viewable viewable, MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream out) throws IOException {
         
     }
-
 }
