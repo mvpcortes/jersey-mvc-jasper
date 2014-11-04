@@ -38,6 +38,10 @@ public class JasperFactory {
     public JasperProxy getJasperProxy(){
         return jasperProxy;
     }
+    
+    void setServletContext(ServletContext servletContext){
+        this.servletContext = servletContext;
+    }
 
     JasperFactory() {
         this.cache = new ConcurrentHashMap<>();
@@ -47,13 +51,19 @@ public class JasperFactory {
         if (!cache.containsKey(name)) {
             InputStream is = getResource(name);
             JasperReport jr = jasperProxy.compileReport(is);
-            cache.putIfAbsent(name, jr);
+            if(jr != null){
+                cache.putIfAbsent(name, jr);
+            }else{
+                throw new JRException(String.format("Cannot found jrxml '%s'", name));
+            }
         }
         return cache.get(name);
 
     }
+    
+    
 
-    InputStream getResource(String name) {
+    public InputStream getResource(String name) {
         if(!name.endsWith(STR_JRXML_EXTENSION)){
             name+=STR_JRXML_EXTENSION;
         }

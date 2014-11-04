@@ -63,7 +63,6 @@ class JasperViewProcessor implements TemplateProcessor<JasperReport> {
     private JasperModel findJasperModel(Viewable vwbl) {
         final Object obj = vwbl.getModel();
 
-//        String queryParams = getQueryParams(vwbl.getTemplateName());
         JasperModel model;
 
         if (obj instanceof JasperModel) {
@@ -82,7 +81,6 @@ class JasperViewProcessor implements TemplateProcessor<JasperReport> {
             model = new JasperModel(list, createWithDefaultProperties());
         }
 
-//        parserQueryParameters(queryParams, model.getParameters());
         return model;
     }
 
