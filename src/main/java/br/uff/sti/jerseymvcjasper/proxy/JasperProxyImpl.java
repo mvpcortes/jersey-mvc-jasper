@@ -28,20 +28,16 @@ public class JasperProxyImpl implements JasperProxy {
     public JasperReport compileReport(InputStream inputStream) throws JRException {
         return JasperCompileManager.compileReport(inputStream);
     }
-    public JasperReport compileReport(Reader reader,  String encoding) throws JRException {
-        InputStream is = new InputStreamFromReader(reader, encoding); //return JasperCompileManager.compileReport(inputStream);
-        return this.compileReport(is);
-    }
 
-@Override
-        public JasperPrint fillReport(JasperReport jasperReport, Map mapParamerters, List listObjs) throws JRException {
+    @Override
+    public JasperPrint fillReport(JasperReport jasperReport, Map mapParamerters, List listObjs) throws JRException {
         JRBeanCollectionDataSource beanColDataSource
                 = new JRBeanCollectionDataSource(listObjs);
         return JasperFillManager.fillReport(jasperReport, mapParamerters, beanColDataSource);
     }
 
     @Override
-        public void exportReportToPDFStream(JasperPrint jasperPrint, OutputStream outputStream)throws JRException{
+    public void exportReportToPDFStream(JasperPrint jasperPrint, OutputStream outputStream) throws JRException {
         JasperExportManager.exportReportToPdfStream(jasperPrint, outputStream);
     }
 }
