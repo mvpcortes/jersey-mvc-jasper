@@ -88,6 +88,6 @@ public class JasperFactory {
     }
 
     public String getRootResources(ServletContext servletContext) {
-        return servletContext.getRealPath("");
+        return servletContext.getRealPath("/WEB-INF/");
     }
 }

@@ -10,6 +10,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.ServletContext;
@@ -69,7 +70,12 @@ class JasperViewProcessor implements TemplateProcessor<JasperReport> {
 
     @Override
     public void writeTo(JasperReport jr, Viewable vwbl, MediaType mt, MultivaluedMap<String, Object> mm, OutputStream outputStream) throws IOException {
-        JasperModel jasperModel = findJasperModel(vwbl);
+        JasperModel jasperModel = null;
+        try{
+            jasperModel = findJasperModel(vwbl);
+        }catch(JRException e){
+            throw new IllegalStateException("Cannot load jasper model", e);
+        }
         try {
             JasperPrint print = getJasperFactory().getJasperProxy().fillReport(jr,
                     jasperModel.getParameters(),
@@ -80,7 +86,7 @@ class JasperViewProcessor implements TemplateProcessor<JasperReport> {
         }
     }
 
-    JasperModel findJasperModel(Viewable vwbl) {
+    JasperModel findJasperModel(Viewable vwbl) throws JRException {
         final Object obj = vwbl.getModel();
 
         JasperModel model;
@@ -104,6 +110,7 @@ class JasperViewProcessor implements TemplateProcessor<JasperReport> {
 
         model.getParameters().putAll(this.createWithDefaultProperties());
 
+        dealWithJRXMLParams(model.getParameters());
         return model;
     }
 
@@ -114,17 +121,16 @@ class JasperViewProcessor implements TemplateProcessor<JasperReport> {
 
         return map;
     }
-
-//    private Map<String, Object> getQueryParams(String templateName) {
-//        String strQueryParams;
-//        int pos = templateName.indexOf("?");
-//        if(pos>= 0){
-//            strQueryParams = templateName.substring(pos);
-//            Mapper mapper = new ObjectMapper();
-//            
-//            mapper.
-//        }else{
-//            return Collections.EMPTY_MAP;
-//        }
-//    }
+    
+    private void dealWithJRXMLParams(Map<String, Object> parameters) throws JRException {
+        Map<String, Object> mapAdd = new HashMap<>();
+        for(Map.Entry<String, Object> entry: parameters.entrySet()){
+            if(entry.getKey().startsWith("JRXML_")){
+                String newKey = entry.getKey().substring("JRXML_".length());
+                mapAdd.put(newKey, 
+                        this.getJasperFactory().compile(entry.getValue().toString(), servletContext)
+                );
+            }
+        }
+    }
 }

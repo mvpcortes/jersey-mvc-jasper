@@ -56,7 +56,7 @@ public class JasperViewProcessorTest {
     }
 
     @Test
-    public void when_find_jasper_model_with_a_list_then_return_a_jasper_model_with_this_list() {
+    public void when_find_jasper_model_with_a_list_then_return_a_jasper_model_with_this_list() throws JRException {
         List list = ImmutableList.of("a", "b", "c");
         doReturn(list).when(viewable).getModel();
         
@@ -70,7 +70,7 @@ public class JasperViewProcessorTest {
     }
     
     @Test
-    public void when_find_jasper_model_with_a_collection_then_return_a_jasper_model_with_a_list() {
+    public void when_find_jasper_model_with_a_collection_then_return_a_jasper_model_with_a_list() throws JRException {
         Set set = ImmutableSet.of("a", "b", "c");
         doReturn(set).when(viewable).getModel();
         
@@ -83,7 +83,7 @@ public class JasperViewProcessorTest {
     }
     
     @Test
-    public void when_find_jasper_model_with_a_not_collection_object_then_return_a_jasper_model_with_a_list() {
+    public void when_find_jasper_model_with_a_not_collection_object_then_return_a_jasper_model_with_a_list() throws JRException {
         String nome = "nome";
         doReturn(nome).when(viewable).getModel();
         
@@ -94,7 +94,7 @@ public class JasperViewProcessorTest {
     }
     
     @Test
-    public void when_find_jasper_model_with_a_jasper_model_then_return_the_same_jasper_model_in_a_list() {
+    public void when_find_jasper_model_with_a_jasper_model_then_return_the_same_jasper_model_in_a_list() throws JRException {
         JasperModel<String> jasperModel = JasperModel.create(String.class).addModels("a");
         doReturn(jasperModel).when(viewable).getModel();
         
@@ -104,7 +104,7 @@ public class JasperViewProcessorTest {
     }
     
     @Test
-    public void when_not_put_any_param_then_insert_default_params() {
+    public void when_not_put_any_param_then_insert_default_params() throws JRException {
         JasperModel<String> jasperModel = JasperModel.create(String.class).addModels("a");
         doReturn(jasperModel).when(viewable).getModel();
         assertEquals(jasperModel.getParameters().size(), 0);
