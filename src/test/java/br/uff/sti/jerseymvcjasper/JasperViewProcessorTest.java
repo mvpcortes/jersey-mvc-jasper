@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.List;
 import java.util.Set;
+import javax.servlet.ServletContext;
 import javax.ws.rs.core.MediaType;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperReport;
@@ -37,6 +38,8 @@ public class JasperViewProcessorTest {
     Viewable viewable;
     
     JasperReport jasperReport;
+    
+    private ServletContext servletContext;
 
     @BeforeMethod
     public void before() throws JRException {
@@ -44,11 +47,12 @@ public class JasperViewProcessorTest {
 
         viewable = mock(Viewable.class);
         jasperFactory = mock(JasperFactory.class);
-        
+        servletContext = mock(ServletContext.class);
         jasperReport = mock(JasperReport.class);
-        doReturn("/").when(jasperFactory).getRootResources();
-        doReturn(jasperReport).when(jasperFactory).compile("a");
+        doReturn("/").when(jasperFactory).getRootResources(servletContext);
+        doReturn(jasperReport).when(jasperFactory).compile("a", servletContext);
         jasperViewProcessor.setJasperFactory(jasperFactory);
+        jasperViewProcessor.setServletContext(servletContext);
     }
 
     @Test
@@ -119,7 +123,7 @@ public class JasperViewProcessorTest {
     
     @Test(expectedExceptions={IllegalStateException.class})
     public void when_resolve_fail_then_return_jasper_report() throws JRException{
-        doThrow(new IllegalStateException()).when(this.jasperFactory).compile("a");
+        doThrow(new IllegalStateException()).when(this.jasperFactory).compile("a", servletContext);
         JasperReport jr = this.jasperViewProcessor.resolve("a", MediaType.APPLICATION_JSON_TYPE);
         
     }

@@ -3,7 +3,7 @@
   
     <groupId>br.uff.sti</groupId>
     <artifactId>jersey-mvc-jasper</artifactId>
-    <version>0.0</version>
+    <version>0.1.6</version>
     
     <packaging>jar</packaging>
     

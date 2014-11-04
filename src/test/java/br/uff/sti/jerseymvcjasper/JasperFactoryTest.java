@@ -85,7 +85,7 @@ public class JasperFactoryTest {
 
         //mocking ResourceSource
         servletContext = criaServletContext();
-        jasperCacheService.setServletContext(servletContext);
+//        jasperCacheService.setServletContext(servletContext);
 
         //mocking JasperProxy
         jasperProxy = criaJasperProxy();
@@ -95,7 +95,7 @@ public class JasperFactoryTest {
     @Test()
     public void when_get_jasper_not_compiled_yet_then_compile_it() throws JRException {
 
-        JasperReport jr = jasperCacheService.compile(PRIMEIRO_STR_JASPER);
+        JasperReport jr = jasperCacheService.compile(PRIMEIRO_STR_JASPER, this.servletContext);
 
         assertNotNull(jr);
         assertTrue(jr == PRIMEIRO_JASPER);
@@ -104,7 +104,7 @@ public class JasperFactoryTest {
     @Test()
     public void when_get_jasper_not_exists_then_throw_exception() throws JRException {
         try{
-            JasperReport jr = jasperCacheService.compile(NAO_EXISTE_STR_JASPER);
+            JasperReport jr = jasperCacheService.compile(NAO_EXISTE_STR_JASPER, this.servletContext);
         }catch(JRException re){
             assertEquals(re.getMessage(), String.format("Cannot found jrxml 'nao_existe'", NAO_EXISTE_STR_JASPER));
         }
@@ -113,7 +113,7 @@ public class JasperFactoryTest {
     @Test()
     public void when_get_jasper_exist_but_not_compile_then_throw_exception() throws JRException {
         try{
-            jasperCacheService.compile(EXISTE_MAS_FALHA_STR_JASPER);
+            jasperCacheService.compile(EXISTE_MAS_FALHA_STR_JASPER, this.servletContext);
         }catch(JRException re){
             assertEquals(re.getMessage(), String.format("falhou", EXISTE_MAS_FALHA_STR_JASPER));
         }
@@ -122,7 +122,7 @@ public class JasperFactoryTest {
     @Test()
     public void when_get_jasper_with_name_without_extension_then_put_the_extension() throws JRException {
         try{
-            jasperCacheService.compile(EXISTE_MAS_FALHA_STR_JASPER);
+            jasperCacheService.compile(EXISTE_MAS_FALHA_STR_JASPER, this.servletContext);
         }catch(JRException re){
             assertEquals(re.getMessage(), String.format("falhou", EXISTE_MAS_FALHA_STR_JASPER));
         }
@@ -142,24 +142,24 @@ public class JasperFactoryTest {
     @Test()
     public void when_get_jasper_two_times_then_compile_only_one_time() throws  JRException {
 
-        JasperReport jr = jasperCacheService.compile(PRIMEIRO_STR_JASPER);
+        JasperReport jr = jasperCacheService.compile(PRIMEIRO_STR_JASPER, this.servletContext);
 
         assertNotNull(jr);
         assertTrue(jr == PRIMEIRO_JASPER);
         
         //segunda vez
-        jr = jasperCacheService.compile(PRIMEIRO_STR_JASPER);
+        jr = jasperCacheService.compile(PRIMEIRO_STR_JASPER, this.servletContext);
         
         assertNotNull(jr);
         assertTrue(jr == PRIMEIRO_JASPER);
         assertEquals(jasperCacheService.cacheSize(), 1);
-        verify(jasperProxy, times(1)).compileReport(servletContext.getResourceAsStream("WEB-INF/"+PRIMEIRO_STR_JASPER));
+        verify(jasperProxy, times(1)).compileReport(servletContext.getResourceAsStream("/WEB-INF/"+PRIMEIRO_STR_JASPER));
     }
 
     private ServletContext criaServletContext(){
         ServletContext _servletContext = mock(ServletContext.class);
-        doReturn(PRIMEIRO_IS_JASPER).when(_servletContext).getResourceAsStream("WEB-INF/"+PRIMEIRO_STR_JASPER);
-        doReturn(EXISTE_MAS_FALHA_IS_JASPER).when(_servletContext).getResourceAsStream("WEB-INF/"+EXISTE_MAS_FALHA_STR_JASPER);
+        doReturn(PRIMEIRO_IS_JASPER).when(_servletContext).getResourceAsStream("/WEB-INF/"+PRIMEIRO_STR_JASPER);
+        doReturn(EXISTE_MAS_FALHA_IS_JASPER).when(_servletContext).getResourceAsStream("/WEB-INF/"+EXISTE_MAS_FALHA_STR_JASPER);
         return _servletContext;
     }
     

@@ -12,10 +12,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import javax.servlet.ServletContext;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.ext.Provider;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
@@ -28,25 +29,39 @@ import org.glassfish.jersey.server.mvc.spi.TemplateProcessor;
  *
  * @author Marcos Côrtes (marcoscortes at id.uff.br)
  */
-@Singleton
+@Provider
 class JasperViewProcessor implements TemplateProcessor<JasperReport> {
 
     private static final String STR_PATH_RESOURCES = "PATH_RESOURCES";
 
-    @Inject
     private JasperFactory factory;
 
-    public JasperViewProcessor() {
-    }
+    @Context
+    ServletContext servletContext;
 
+    public void JasperViewProcessor(){
+        factory = new JasperFactory();
+    }
+    
     void setJasperFactory(JasperFactory jasperFactory) {
         this.factory = jasperFactory;
+    }
+    
+    JasperFactory getJasperFactory(){
+        if(factory == null){
+            factory = new JasperFactory();
+        }
+        return factory;
+    }
+
+    void setServletContext(ServletContext servletContext) {
+        this.servletContext = servletContext;
     }
 
     @Override
     public JasperReport resolve(String name, MediaType mediaType) {
         try {
-            return this.factory.compile(name);
+            return getJasperFactory().compile(name, servletContext);
         } catch (JRException ex) {
             throw new IllegalStateException(String.format("Cannot compile %s", name), ex);
         }
@@ -56,7 +71,7 @@ class JasperViewProcessor implements TemplateProcessor<JasperReport> {
     public void writeTo(JasperReport jr, Viewable vwbl, MediaType mt, MultivaluedMap<String, Object> mm, OutputStream outputStream) throws IOException {
         JasperModel jasperModel = findJasperModel(vwbl);
         try {
-            JasperPrint print = factory.getJasperProxy().fillReport(jr,
+            JasperPrint print = getJasperFactory().getJasperProxy().fillReport(jr,
                     jasperModel.getParameters(),
                     jasperModel.getListModels());
             factory.getJasperProxy().exportReportToPDFStream(print, outputStream);
@@ -72,7 +87,7 @@ class JasperViewProcessor implements TemplateProcessor<JasperReport> {
 
         if (obj instanceof JasperModel) {
             model = (JasperModel) obj;
-                    
+
         } else {
             List list;
             if (obj instanceof List) {
@@ -86,7 +101,7 @@ class JasperViewProcessor implements TemplateProcessor<JasperReport> {
             }
             model = new JasperModel(list, new HashMap<>());
         }
-        
+
         model.getParameters().putAll(this.createWithDefaultProperties());
 
         return model;
@@ -95,7 +110,7 @@ class JasperViewProcessor implements TemplateProcessor<JasperReport> {
     Map<String, Object> createWithDefaultProperties() {
         Map<String, Object> map = new HashMap<>();
 
-        map.put(STR_PATH_RESOURCES, factory.getRootResources());
+        map.put(STR_PATH_RESOURCES, getJasperFactory().getRootResources(servletContext));
 
         return map;
     }
