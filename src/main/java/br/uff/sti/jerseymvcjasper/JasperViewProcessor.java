@@ -32,11 +32,16 @@ import org.glassfish.jersey.server.mvc.spi.TemplateProcessor;
 class JasperViewProcessor implements TemplateProcessor<JasperReport> {
 
     private static final String STR_PATH_RESOURCES = "PATH_RESOURCES";
-    
+
     @Inject
     private JasperFactory factory;
 
-    public JasperViewProcessor() {}
+    public JasperViewProcessor() {
+    }
+
+    void setJasperFactory(JasperFactory jasperFactory) {
+        this.factory = jasperFactory;
+    }
 
     @Override
     public JasperReport resolve(String name, MediaType mediaType) {
@@ -51,8 +56,8 @@ class JasperViewProcessor implements TemplateProcessor<JasperReport> {
     public void writeTo(JasperReport jr, Viewable vwbl, MediaType mt, MultivaluedMap<String, Object> mm, OutputStream outputStream) throws IOException {
         JasperModel jasperModel = findJasperModel(vwbl);
         try {
-            JasperPrint print = factory.getJasperProxy().fillReport(jr, 
-                    jasperModel.getParameters(), 
+            JasperPrint print = factory.getJasperProxy().fillReport(jr,
+                    jasperModel.getParameters(),
                     jasperModel.getListModels());
             factory.getJasperProxy().exportReportToPDFStream(print, outputStream);
         } catch (JRException jre) {
@@ -60,13 +65,14 @@ class JasperViewProcessor implements TemplateProcessor<JasperReport> {
         }
     }
 
-    private JasperModel findJasperModel(Viewable vwbl) {
+    JasperModel findJasperModel(Viewable vwbl) {
         final Object obj = vwbl.getModel();
 
         JasperModel model;
 
         if (obj instanceof JasperModel) {
             model = (JasperModel) obj;
+                    
         } else {
             List list;
             if (obj instanceof List) {
@@ -78,13 +84,15 @@ class JasperViewProcessor implements TemplateProcessor<JasperReport> {
                 list = new ArrayList(1);
                 list.add(obj);
             }
-            model = new JasperModel(list, createWithDefaultProperties());
+            model = new JasperModel(list, new HashMap<>());
         }
+        
+        model.getParameters().putAll(this.createWithDefaultProperties());
 
         return model;
     }
 
-    private Map<String, Object> createWithDefaultProperties() {
+    Map<String, Object> createWithDefaultProperties() {
         Map<String, Object> map = new HashMap<>();
 
         map.put(STR_PATH_RESOURCES, factory.getRootResources());

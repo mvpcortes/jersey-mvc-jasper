@@ -6,18 +6,20 @@
 package br.uff.sti.jerseymvcjasper;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- *
+ * Represents the fields ($F{}) and parameters ($P{}) of a Jasper.
  * @author marcos
+ * @param <T> The type of model in the JasperModel
  */
 public class JasperModel<T> {
 
-    private Map<String, Object> parameters;
-    private List<T> listModels;
+    private final Map<String, Object> parameters;
+    private final List<T> listModels;
 
     private JasperModel() {
         parameters = new HashMap<>();
@@ -37,20 +39,22 @@ public class JasperModel<T> {
         return listModels;
     }
 
-    public static JasperModel novo() {
-        return new JasperModel();
+    public static <X> JasperModel<X> create(Class<X> clazz) {
+        return new JasperModel<>();
     }
 
-    public JasperModel models(T... arrayT) {
-        listModels = new ArrayList(arrayT.length);
-        for (T t : arrayT) {
-            listModels.add(t);
-        }
+    public JasperModel addModels(T... arrayT) {
+        listModels.clear();
+        listModels.addAll(Arrays.asList(arrayT));
         return this;
     }
 
     public JasperModel putParam(String key, Object value) {
         parameters.put(key, value);
         return this;
+    }
+
+    Object getParam(String key) {
+        return parameters.get(key);
     }
 }

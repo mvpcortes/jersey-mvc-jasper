@@ -48,6 +48,9 @@ public class JasperFactory {
     }
 
     public JasperReport compile(String name) throws JRException {
+        
+        name = cleanName(name);
+        
         if (!cache.containsKey(name)) {
             InputStream is = getResource(name);
             JasperReport jr = jasperProxy.compileReport(is);
@@ -61,14 +64,17 @@ public class JasperFactory {
 
     }
     
-    
-
-    public InputStream getResource(String name) {
-        if(!name.endsWith(STR_JRXML_EXTENSION)){
-            name+=STR_JRXML_EXTENSION;
-        }
-        
+    public String cleanName(String name){
         name = name.replaceFirst("^/+", "");
+        
+        if(name.endsWith(STR_JRXML_EXTENSION)){
+            name = name.substring(0, name.length()-STR_JRXML_EXTENSION.length());
+        }
+        return name;
+    }
+    
+    public InputStream getResource(String name) {
+        name+=STR_JRXML_EXTENSION;
         
         name = "WEB-INF/"+name;
         

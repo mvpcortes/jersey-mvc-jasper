@@ -23,13 +23,15 @@ import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 /**
  *
  * @author marcos
  */
-public class JasperCacheServiceUnitarioTest {
+public class JasperFactoryTest {
 
     private JasperFactory jasperCacheService;
 
@@ -41,6 +43,32 @@ public class JasperCacheServiceUnitarioTest {
     private final JasperReport PRIMEIRO_JASPER = mock(JasperReport.class);
     private final JasperReport EXISTE_MAS_FALHA_JASPER = mock(JasperReport.class);
 
+    @Parameters
+    @DataProvider(name = "validNames")
+    public Object[][] validNames(){
+        return new Object[][]{
+        {"a", "a"},
+        {"a/b", "a/b"},
+        {"a/b/c", "a/b/c"},
+        {"a/b/c.a", "a/b/c.a"}
+        };
+    }
+    
+    @Parameters
+    @DataProvider(name = "invalidNames")
+    public Object[][] invalidNames(){
+        return new Object[][]{
+        {"a.jrxml", "a"},
+        {"a/b.jrxml", "a/b"},
+        {"a/b/c.jrxml", "a/b/c"},
+        {"a/b/c.a.jrxml", "a/b/c.a"},
+        {"/a.jrxml", "a"},
+        {"/a/b.jrxml", "a/b"},
+        {"/a/b/c.jrxml", "a/b/c"},
+        {"/a/b/c.a.jrxml", "a/b/c.a"}
+        };
+    }
+    
     private JasperProxy jasperProxy;
 
     private ServletContext servletContext;
@@ -64,8 +92,8 @@ public class JasperCacheServiceUnitarioTest {
         jasperCacheService.setJasperProxy(jasperProxy);
     }
 
-    @Test(groups = {"unitario"})
-    public void quando_obtem_um_jasper_nao_compilado_o_compila() throws JRException {
+    @Test()
+    public void when_get_jasper_not_compiled_yet_then_compile_it() throws JRException {
 
         JasperReport jr = jasperCacheService.compile(PRIMEIRO_STR_JASPER);
 
@@ -73,26 +101,46 @@ public class JasperCacheServiceUnitarioTest {
         assertTrue(jr == PRIMEIRO_JASPER);
     }
 
-    @Test(groups = {"unitario"})
-    public void quando_obtem_um_jasper_que_nao_existe_entao_gera_relatorio_exception() throws JRException {
+    @Test()
+    public void when_get_jasper_not_exists_then_throw_exception() throws JRException {
         try{
             JasperReport jr = jasperCacheService.compile(NAO_EXISTE_STR_JASPER);
         }catch(JRException re){
-            assertEquals(re.getMessage(), String.format("Cannot found jrxml 'nao_existe.jrxml'", NAO_EXISTE_STR_JASPER));
+            assertEquals(re.getMessage(), String.format("Cannot found jrxml 'nao_existe'", NAO_EXISTE_STR_JASPER));
         }
     }
     
-    @Test(groups = {"unitario"})
-    public void quando_obtem_um_jasper_que_existe_porem_falha_na_hora_de_gerar_entao_gera_relatorio_exception() throws JRException {
+    @Test()
+    public void when_get_jasper_exist_but_not_compile_then_throw_exception() throws JRException {
         try{
-            JasperReport jr = jasperCacheService.compile(EXISTE_MAS_FALHA_STR_JASPER);
+            jasperCacheService.compile(EXISTE_MAS_FALHA_STR_JASPER);
         }catch(JRException re){
             assertEquals(re.getMessage(), String.format("falhou", EXISTE_MAS_FALHA_STR_JASPER));
         }
     }
+    
+    @Test()
+    public void when_get_jasper_with_name_without_extension_then_put_the_extension() throws JRException {
+        try{
+            jasperCacheService.compile(EXISTE_MAS_FALHA_STR_JASPER);
+        }catch(JRException re){
+            assertEquals(re.getMessage(), String.format("falhou", EXISTE_MAS_FALHA_STR_JASPER));
+        }
+    }
+    
+  
+    @Test(dataProvider="validNames")
+    public void when_send_valid_names_then_not_change_string(String actual, String expected){
+        assertEquals(jasperCacheService.cleanName(actual), expected);
+    }
+    
+    @Test(dataProvider="invalidNames")
+    public void when_send_invalid_names_then_not_change_string(String actual, String expected){
+        assertEquals(jasperCacheService.cleanName(actual), expected);
+    }
         
-    @Test(groups = {"unitario"})
-    public void quando_obtem_um_jasper_duas_vezes_entao_compila_uma_unica_vez() throws  JRException {
+    @Test()
+    public void when_get_jasper_two_times_then_compile_only_one_time() throws  JRException {
 
         JasperReport jr = jasperCacheService.compile(PRIMEIRO_STR_JASPER);
 
