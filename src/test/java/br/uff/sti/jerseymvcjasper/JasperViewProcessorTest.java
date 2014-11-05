@@ -50,7 +50,7 @@ public class JasperViewProcessorTest {
         servletContext = mock(ServletContext.class);
         jasperReport = mock(JasperReport.class);
         doReturn("/").when(jasperFactory).getRootResources(servletContext);
-        doReturn(jasperReport).when(jasperFactory).compile("a", servletContext);
+        doReturn(jasperReport).when(jasperFactory).get("a", servletContext);
         jasperViewProcessor.setJasperFactory(jasperFactory);
         jasperViewProcessor.setServletContext(servletContext);
     }
@@ -123,7 +123,7 @@ public class JasperViewProcessorTest {
     
     @Test(expectedExceptions={IllegalStateException.class})
     public void when_resolve_fail_then_return_jasper_report() throws JRException{
-        doThrow(new IllegalStateException()).when(this.jasperFactory).compile("a", servletContext);
+        doThrow(new IllegalStateException()).when(this.jasperFactory).get("a", servletContext);
         JasperReport jr = this.jasperViewProcessor.resolve("a", MediaType.APPLICATION_JSON_TYPE);
         
     }

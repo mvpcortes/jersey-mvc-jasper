@@ -10,6 +10,7 @@ import br.uff.sti.jerseymvcjasper.proxy.JasperProxyImpl;
 import java.io.InputStream;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.logging.Logger;
 import javax.servlet.ServletContext;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperReport;
@@ -21,8 +22,7 @@ import net.sf.jasperreports.engine.JasperReport;
 public class JasperFactory {
 
     private static final String STR_JRXML_EXTENSION = ".jrxml";
-
-//    private ServletContext servletContext;
+    private static final String STR_JASPER_EXTENSION = ".jasper";
 
     private JasperProxy jasperProxy;
 
@@ -45,13 +45,21 @@ public class JasperFactory {
         this.jasperProxy = new JasperProxyImpl();
     }
 
-    public JasperReport compile(String name, ServletContext servletContext) throws JRException {
+    public JasperReport getCompiled(String name, ServletContext servletContext) throws JRException {
+        
+        //try found compiled
+        JasperReport jr = jasperProxy.loadReport(getJasperResource(name, servletContext));
+        if(jr == null){
+            jr = jasperProxy.compileReport(getJRXMLResource(name, servletContext));
+        }
+        return jr;
+    }
+    public JasperReport get(String name, ServletContext servletContext) throws JRException {
 
         name = cleanName(name);
 
         if (!cache.containsKey(name)) {
-            InputStream is = getResource(name, servletContext);
-            JasperReport jr = jasperProxy.compileReport(is);
+            JasperReport jr = getCompiled(name, servletContext);
             if (jr != null) {
                 cache.putIfAbsent(name, jr);
             } else {
@@ -68,15 +76,27 @@ public class JasperFactory {
         if (name.endsWith(STR_JRXML_EXTENSION)) {
             name = name.substring(0, name.length() - STR_JRXML_EXTENSION.length());
         }
+
+        if (name.endsWith(STR_JASPER_EXTENSION)) {
+            name = name.substring(0, name.length() - STR_JASPER_EXTENSION.length());
+        }
+
         return name;
     }
 
+    public InputStream getJasperResource(String name, ServletContext servletContext) {
+        name += STR_JASPER_EXTENSION;
+        return getResource(name, servletContext);
+    }
+
     public InputStream getResource(String name, ServletContext servletContext) {
-        name += STR_JRXML_EXTENSION;
-
         name = "/WEB-INF/" + name;
-
         return servletContext.getResourceAsStream(name);
+    }
+
+    public InputStream getJRXMLResource(String name, ServletContext servletContext) {
+        name += STR_JRXML_EXTENSION;
+        return getResource(name, servletContext);
     }
 
     public void clearCache() {

@@ -95,7 +95,7 @@ public class JasperFactoryTest {
     @Test()
     public void when_get_jasper_not_compiled_yet_then_compile_it() throws JRException {
 
-        JasperReport jr = jasperCacheService.compile(PRIMEIRO_STR_JASPER, this.servletContext);
+        JasperReport jr = jasperCacheService.get(PRIMEIRO_STR_JASPER, this.servletContext);
 
         assertNotNull(jr);
         assertTrue(jr == PRIMEIRO_JASPER);
@@ -104,7 +104,7 @@ public class JasperFactoryTest {
     @Test()
     public void when_get_jasper_not_exists_then_throw_exception() throws JRException {
         try{
-            JasperReport jr = jasperCacheService.compile(NAO_EXISTE_STR_JASPER, this.servletContext);
+            JasperReport jr = jasperCacheService.get(NAO_EXISTE_STR_JASPER, this.servletContext);
         }catch(JRException re){
             assertEquals(re.getMessage(), String.format("Cannot found jrxml 'nao_existe'", NAO_EXISTE_STR_JASPER));
         }
@@ -113,7 +113,7 @@ public class JasperFactoryTest {
     @Test()
     public void when_get_jasper_exist_but_not_compile_then_throw_exception() throws JRException {
         try{
-            jasperCacheService.compile(EXISTE_MAS_FALHA_STR_JASPER, this.servletContext);
+            jasperCacheService.get(EXISTE_MAS_FALHA_STR_JASPER, this.servletContext);
         }catch(JRException re){
             assertEquals(re.getMessage(), String.format("falhou", EXISTE_MAS_FALHA_STR_JASPER));
         }
@@ -122,7 +122,7 @@ public class JasperFactoryTest {
     @Test()
     public void when_get_jasper_with_name_without_extension_then_put_the_extension() throws JRException {
         try{
-            jasperCacheService.compile(EXISTE_MAS_FALHA_STR_JASPER, this.servletContext);
+            jasperCacheService.get(EXISTE_MAS_FALHA_STR_JASPER, this.servletContext);
         }catch(JRException re){
             assertEquals(re.getMessage(), String.format("falhou", EXISTE_MAS_FALHA_STR_JASPER));
         }
@@ -142,13 +142,13 @@ public class JasperFactoryTest {
     @Test()
     public void when_get_jasper_two_times_then_compile_only_one_time() throws  JRException {
 
-        JasperReport jr = jasperCacheService.compile(PRIMEIRO_STR_JASPER, this.servletContext);
+        JasperReport jr = jasperCacheService.get(PRIMEIRO_STR_JASPER, this.servletContext);
 
         assertNotNull(jr);
         assertTrue(jr == PRIMEIRO_JASPER);
         
         //segunda vez
-        jr = jasperCacheService.compile(PRIMEIRO_STR_JASPER, this.servletContext);
+        jr = jasperCacheService.get(PRIMEIRO_STR_JASPER, this.servletContext);
         
         assertNotNull(jr);
         assertTrue(jr == PRIMEIRO_JASPER);

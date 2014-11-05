@@ -7,7 +7,6 @@ package br.uff.sti.jerseymvcjasper.proxy;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Reader;
 import java.util.List;
 import java.util.Map;
 import net.sf.jasperreports.engine.JRException;
@@ -17,6 +16,7 @@ import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.engine.util.JRLoader;
 
 /**
  *
@@ -24,6 +24,11 @@ import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
  */
 public class JasperProxyImpl implements JasperProxy {
 
+    @Override
+    public JasperReport loadReport(InputStream is) throws JRException {
+        return (JasperReport)JRLoader.loadObject(is);
+    }
+    
     @Override
     public JasperReport compileReport(InputStream inputStream) throws JRException {
         return JasperCompileManager.compileReport(inputStream);

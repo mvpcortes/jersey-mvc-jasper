@@ -10,7 +10,6 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.ServletContext;
@@ -62,7 +61,7 @@ class JasperViewProcessor implements TemplateProcessor<JasperReport> {
     @Override
     public JasperReport resolve(String name, MediaType mediaType) {
         try {
-            return getJasperFactory().compile(name, servletContext);
+            return getJasperFactory().get(name, servletContext);
         } catch (JRException ex) {
             throw new IllegalStateException(String.format("Cannot compile %s", name), ex);
         }
@@ -128,7 +127,7 @@ class JasperViewProcessor implements TemplateProcessor<JasperReport> {
             if(entry.getKey().startsWith("JRXML_")){
                 String newKey = entry.getKey().substring("JRXML_".length());
                 mapAdd.put(newKey, 
-                        this.getJasperFactory().compile(entry.getValue().toString(), servletContext)
+                        this.getJasperFactory().get(entry.getValue().toString(), servletContext)
                 );
             }
         }

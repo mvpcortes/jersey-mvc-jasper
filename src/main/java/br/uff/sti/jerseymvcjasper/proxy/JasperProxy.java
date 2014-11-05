@@ -20,6 +20,8 @@ import net.sf.jasperreports.engine.JasperReport;
  */
 public interface JasperProxy {
     
+    public JasperReport loadReport(InputStream is) throws JRException ;
+    
     public JasperReport compileReport(InputStream inputStream) throws JRException;
     
     public JasperPrint fillReport(JasperReport jasperReport, Map mapParamerters, List listObjs)throws JRException;
