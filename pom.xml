@@ -3,31 +3,19 @@
   
     <groupId>br.uff.sti</groupId>
     <artifactId>jersey-mvc-jasper</artifactId>
-    <version>0.1.10</version>
+    <version>0.1rc</version>
     
     <packaging>jar</packaging>
     
     <name>jersey-ext-mvc-jasper</name>
- 
+    
  
     <description>
-        Jersey extension to provide a Template Processor for generate PDFs with Jasper
+        Jersey Teplate to integrate Jasper in Jersey Template system, generating PDF files
     </description>
 
     <build>
         <plugins>
-            <!--            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <inherited>true</inherited>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <Export-Package>org.glassfish.jersey.server.mvc.freemarker.*;version=${project.version}</Export-Package>
-                    </instructions>
-                    <unpackBundle>true</unpackBundle>
-                </configuration>
-            </plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
