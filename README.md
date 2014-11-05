@@ -58,6 +58,7 @@ Jersey by itself has a lot of ways to define a web-service method (returning a e
 The jersey-mv-jasper will search in "WEB-INF/jasper/" for a file like my_template.jasper. If it not found, will search by my_template.jrxml" and compile it.
 
 You can return a List to represent multiples entities to be rendered by jasper using $F{...} (field).
+
     @GET
     @Path(".pdf")
     @Template(name="/jasper/my_template")
