@@ -33,7 +33,7 @@ Install it has two steps:
 
 ### Register the MvcFeature
 
-Register the MvcFeature provide by this module. More details in: https://jersey.java.net/documentation/latest/mvc.html#mvc.registration
+Register the MvcFeature provide by this module. More details [here](https://jersey.java.net/documentation/latest/mvc.html#mvc.registration).
 
     ...
     register(org.glassfish.jersey.jackson.JacksonFeature.class);
@@ -79,5 +79,8 @@ Return too a instance of [JasperModel](src/main/java/br/uff/sti/jerseymvcjasper/
     }
   
 
-References
-----------
+See more
+--------
+* [Jersey Manual - MVC templates](https://jersey.java.net/documentation/latest/mvc.html)
+* [Plugin to pre-compile jaspers from jrxml](https://github.com/alexnederlof/Jasper-report-maven-plugin)
+* [FreeMarker template for Jersey](https://github.com/jersey/jersey/tree/master/ext/mvc-freemarker)
