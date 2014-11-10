@@ -10,7 +10,6 @@ import br.uff.sti.jerseymvcjasper.proxy.JasperProxyImpl;
 import java.io.InputStream;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.logging.Logger;
 import javax.servlet.ServletContext;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperReport;
